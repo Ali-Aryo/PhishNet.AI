@@ -1,0 +1,289 @@
+/* Google Fonts - Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+/* Add this rule globally or to relevant elements to make layout more predictable */
+/* It's good practice to apply this to all elements for consistent layout behavior */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #0d0d0d; /* Black background */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align items to the top initially */
+    min-height: 100vh;
+    margin: 0;
+    padding: 0px 0; /* Add some vertical padding */
+    color: #e0e0e0; /* Light text color */
+}
+
+.main-container {
+    width: 90%;
+    max-width: 700px; /* Adjust max-width as needed */
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between cards */
+}
+
+.app-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 0px;
+}
+
+.app-logo {
+    width: 350px; /* Adjust size as needed */
+    height: auto;
+    margin-bottom: -80px;
+    filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.9)); /* Glow effect for logo */
+}
+
+.app-header h1 {
+    font-size: 3.0em;
+    color: #00ffff; /* Cyan color for app name */
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+    margin: 0;
+}
+
+.card {
+    background-color: #1a1a1a; /* Darker grey for cards */
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333; /* Subtle border */
+    
+    /* ADDED FOR SMOOTH TRANSITION */
+    transition: box-shadow 0.3s ease, border-color 0.3s ease; /* Smooth transition for glow and border */
+    /* Add cursor pointer to indicate interactivity */
+    cursor: pointer; 
+}
+
+/* ADDED NEW CSS RULE FOR THE HOVER EFFECT */
+.card:hover {
+    /* Main white glow effect */
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), /* White outer glow */
+                0 6px 20px rgba(0, 0, 0, 0.4);   /* Keep original shadow as well, or adjust */
+    
+    /* You can also change the border color slightly if you wish */
+    border-color: rgba(255, 255, 255, 0.8); /* Make the border itself whiter */
+}
+
+.input-card {
+    /* Specific styles for the input card if needed */
+}
+
+.input-actions {
+    position: relative; /* For absolute positioning of paste button */
+    margin-bottom: 20px; /* Space between input section and evaluate button */
+    /* Ensure this container explicitly takes full width if not already */
+    width: 100%; /* Add this if it's not implicitly 100% */
+}
+
+.input-label {
+    display: block;
+    font-size: 1.5em;
+    margin-bottom: 5px;
+    color: #e0e0e0;
+    text-align: center;
+}
+
+.input-subtext {
+    font-size: 0.9em;
+    color: #888;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+textarea {
+    width: 100%; /* Adjust for padding */
+    padding: 10px;
+    /* margin-bottom: 20px; Removed here as input-actions handles spacing */
+    background-color: #2a2a2a; /* Slightly lighter dark for input */
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-size: 1em;
+    resize: vertical; /* Allow vertical resizing */
+    min-height: 150px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    font-family: 'Inter', sans-serif; /* Explicitly set the font to match */
+    padding-right: 60px; /* NEW: Make space for the paste button inside */
+}
+
+.sleek-button {
+    background: linear-gradient(145deg, #00c6ff, #0072ff); /* Gradient blue */
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
+    display: block; /* Make button take full width */
+    width: 100%;
+}
+
+.sleek-button:hover {
+    background: linear-gradient(145deg, #00aaff, #0056e8);
+    box-shadow: 0 6px 20px rgba(0, 114, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+.sleek-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(0, 114, 255, 0.3);
+}
+
+/* NEW: Styles for the Paste button (action-button) */
+.action-button {
+    position: absolute; /* Position relative to .input-actions */
+    right:20px; /* Adjust as needed */
+    top: 10px; /* Adjust as needed */
+    background-color: #3a3a3a; /* Darker background */
+    color: #00ffff; /* Cyan text */
+    border: 1px solid #00ffff; /* Cyan border */
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8em;
+    font-weight: 600;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    z-index: 10; /* Ensure it's above the textarea */
+}
+
+.action-button:hover {
+    background-color: #00ffff20; /* Light cyan background on hover */
+    color: #ffffff;
+    border-color: #ffffff;
+}
+
+.action-button:active {
+    transform: translateY(1px);
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    color: #00ffff;
+}
+
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #00ffff; /* Cyan color */
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Result Card and Content */
+.result-card {
+    min-height: 150px; /* Give it some vertical space */
+    display: flex; /* Make it a flex container */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    /* NEW: Add transition for smooth glow effect */
+    transition: box-shadow 0.5s ease-out; /* Slower transition for a more prominent glow */
+}
+
+/* NEW: Glow for Not Spam result */
+.result-card.result-glow-not-spam {
+    box-shadow: 0 0 25px rgba(40, 167, 69, 0.7), /* Green glow */
+                0 6px 20px rgba(0, 0, 0, 0.3); /* Keep existing base shadow */
+    border-color: rgba(40, 167, 69, 0.8); /* Make border glow too */
+}
+
+/* NEW: Glow for Spam result */
+.result-card.result-glow-spam {
+    box-shadow: 0 0 25px rgba(220, 53, 69, 0.7), /* Red glow */
+                0 6px 20px rgba(0, 0, 0, 0.3); /* Keep existing base shadow */
+    border-color: rgba(220, 53, 69, 0.8); /* Make border glow too */
+}
+
+.result-content {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.prediction-icon {
+    font-size: 3em; /* Larger icon */
+    margin-bottom: 10px;
+}
+
+.prediction-text {
+    font-size: 2.5em; /* Larger text for prediction */
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+/* Colors for prediction outcome */
+.prediction-not-spam {
+    color: #28a745; /* Green */
+}
+
+.prediction-spam {
+    color: #dc3545; /* Red */
+}
+
+.report-button {
+    background-color: transparent;
+    color: #00ffff; /* Cyan */
+    border: 1px solid #00ffff;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    display: flex; /* Allow icon and text to align */
+    align-items: center;
+    gap: 5px; /* Space between icon and text */
+}
+
+.report-button:hover {
+    background-color: #00ffff20; /* Light cyan background on hover */
+    color: #ffffff;
+    border-color: #ffffff;
+}
+
+.error-message {
+    color: #ff6347; /* Tomato red for errors */
+    font-size: 0.9em;
+    margin-top: 15px;
+}
+
+.secondary-card {
+    min-height: 80px; /* Placeholder height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.secondary-card h2 {
+    color: #e0e0e0;
+    font-size: 1.5em;
+    margin: 0;
+}

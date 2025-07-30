@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishNet.AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <header class="app-header">
+            <img src="images/phishnet.png" alt="PhishNet.AI Logo" class="app-logo">
+            <h1>PhishNet.AI</h1>
+        </header>
+
+        <div class="card input-card">
+            <label for="emailInput" class="input-label">Message</label>
+            <p class="input-subtext">Type or paste in the message to be detected from any platform (Email, Slack, GChat ...)</p>
+            
+            <div class="input-actions"> <textarea id="emailInput" placeholder="" rows="10"></textarea>
+                <button id="pasteButton" class="action-button">Paste</button> </div>
+            
+            <button id="evaluateButton" class="sleek-button">Evaluate</button>
+
+            <div id="loadingIndicator" class="loading-spinner hidden">
+                <div class="spinner"></div>
+                <p>Analyzing...</p>
+            </div>
+        </div>
+
+        <div id="resultCard" class="card result-card hidden">
+            <div class="result-content">
+                <span id="predictionIcon" class="prediction-icon"></span>
+                <span id="predictionText" class="prediction-text"></span>
+                <button id="reportButton" class="report-button">
+                    <i class="fas fa-question-circle"></i> Report Phishing
+                </button>
+            </div>
+            <p id="errorMessage" class="error-message"></p>
+        </div>
+
+        <div class="card secondary-card">
+            <h2> Practice Phish Finding 🎣</h2>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
