@@ -1,8 +1,7 @@
 /* Google Fonts - Inter */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-/* Add this rule globally or to relevant elements to make layout more predictable */
-/* It's good practice to apply this to all elements for consistent layout behavior */
+/* Add this rule globally for consistent layout behavior */
 *, *::before, *::after {
     box-sizing: border-box;
 }
@@ -15,7 +14,8 @@ body {
     align-items: flex-start; /* Align items to the top initially */
     min-height: 100vh;
     margin: 0;
-    padding: 0px 0; /* Add some vertical padding */
+    padding: 0; /* Ensures no padding on top, left, or right */
+    padding-bottom: 30px; /* Add specific padding ONLY to the bottom */
     color: #e0e0e0; /* Light text color */
 }
 
@@ -55,19 +55,14 @@ body {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     border: 1px solid #333; /* Subtle border */
     
-    /* ADDED FOR SMOOTH TRANSITION */
     transition: box-shadow 0.3s ease, border-color 0.3s ease; /* Smooth transition for glow and border */
-    /* Add cursor pointer to indicate interactivity */
     cursor: pointer; 
 }
 
-/* ADDED NEW CSS RULE FOR THE HOVER EFFECT */
 .card:hover {
-    /* Main white glow effect */
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), /* White outer glow */
                 0 6px 20px rgba(0, 0, 0, 0.4);   /* Keep original shadow as well, or adjust */
     
-    /* You can also change the border color slightly if you wish */
     border-color: rgba(255, 255, 255, 0.8); /* Make the border itself whiter */
 }
 
@@ -78,8 +73,7 @@ body {
 .input-actions {
     position: relative; /* For absolute positioning of paste button */
     margin-bottom: 20px; /* Space between input section and evaluate button */
-    /* Ensure this container explicitly takes full width if not already */
-    width: 100%; /* Add this if it's not implicitly 100% */
+    width: 100%; 
 }
 
 .input-label {
@@ -98,9 +92,8 @@ body {
 }
 
 textarea {
-    width: 100%; /* Adjust for padding */
+    width: 100%; /* Stretches to full width of parent due to box-sizing: border-box */
     padding: 10px;
-    /* margin-bottom: 20px; Removed here as input-actions handles spacing */
     background-color: #2a2a2a; /* Slightly lighter dark for input */
     border: 1px solid #444;
     border-radius: 8px;
@@ -110,7 +103,7 @@ textarea {
     min-height: 150px;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
     font-family: 'Inter', sans-serif; /* Explicitly set the font to match */
-    padding-right: 60px; /* NEW: Make space for the paste button inside */
+    padding-right: 60px; /* Make space for the paste button inside */
 }
 
 .sleek-button {
@@ -140,10 +133,10 @@ textarea {
     box-shadow: 0 2px 10px rgba(0, 114, 255, 0.3);
 }
 
-/* NEW: Styles for the Paste button (action-button) */
+/* Styles for the Paste button */
 .action-button {
     position: absolute; /* Position relative to .input-actions */
-    right:20px; /* Adjust as needed */
+    right: 20px; /* Adjust as needed */
     top: 10px; /* Adjust as needed */
     background-color: #3a3a3a; /* Darker background */
     color: #00ffff; /* Cyan text */
@@ -167,7 +160,7 @@ textarea {
     transform: translateY(1px);
 }
 
-/* Loading Spinner */
+/* Loading Spinner (for main detector page) */
 .loading-spinner {
     display: flex;
     flex-direction: column;
@@ -197,24 +190,23 @@ textarea {
 
 /* Result Card and Content */
 .result-card {
-    min-height: 150px; /* Give it some vertical space */
-    display: flex; /* Make it a flex container */
+    min-height: 150px;
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    /* NEW: Add transition for smooth glow effect */
     transition: box-shadow 0.5s ease-out; /* Slower transition for a more prominent glow */
 }
 
-/* NEW: Glow for Not Spam result */
+/* Glow for Not Spam result */
 .result-card.result-glow-not-spam {
     box-shadow: 0 0 25px rgba(40, 167, 69, 0.7), /* Green glow */
                 0 6px 20px rgba(0, 0, 0, 0.3); /* Keep existing base shadow */
     border-color: rgba(40, 167, 69, 0.8); /* Make border glow too */
 }
 
-/* NEW: Glow for Spam result */
+/* Glow for Spam result */
 .result-card.result-glow-spam {
     box-shadow: 0 0 25px rgba(220, 53, 69, 0.7), /* Red glow */
                 0 6px 20px rgba(0, 0, 0, 0.3); /* Keep existing base shadow */
@@ -275,6 +267,7 @@ textarea {
     margin-top: 15px;
 }
 
+/* Styles for generic secondary cards (like Settings) */
 .secondary-card {
     min-height: 80px; /* Placeholder height */
     display: flex;
@@ -286,4 +279,221 @@ textarea {
     color: #e0e0e0;
     font-size: 1.5em;
     margin: 0;
+    text-align: center; /* Ensures text inside the h2 is centered */
+}
+
+/* Styles for clickable secondary cards (like Learning Mode) */
+.clickable-card {
+    text-decoration: none; /* Remove underline from link */
+    color: inherit; /* Inherit text color */
+}
+
+/* Add hover effect for clickable secondary cards */
+.clickable-card:hover {
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), /* Cyan glow on hover */
+                0 6px 20px rgba(0, 0, 0, 0.5);
+    border-color: rgba(0, 255, 255, 0.8);
+    transform: translateY(-2px);
+}
+
+/* Styles for learning.html elements */
+.learning-card {
+    min-height: 400px; /* Adjust as needed */
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.challenge-title {
+    font-size: 1.8em;
+    color: #00ffff;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* NEW: This is the main container for email content, loading, or errors */
+.challenge-email-container { 
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 25px;
+    width: 100%;
+    max-height: 400px; /* Limit height for long emails */
+    overflow-y: auto; /* Enable scrolling for long emails */
+    word-break: break-word; /* Break long words */
+    white-space: pre-wrap; /* Preserve whitespace and wrap lines */
+    
+    /* Ensure it can center its immediate children (loading message or pre tag) */
+    display: flex; 
+    flex-direction: column; /* To stack spinner and text, or align pre */
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 150px; /* Give it space even when empty or loading */
+}
+
+/* Style for the actual email content (the <pre> tag inside challenge-email-container) */
+.challenge-email-container pre {
+    margin: 0;
+    padding: 10px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: 'Inter', sans-serif;
+    color: #e0e0e0; /* Ensure text color */
+    font-size: 1.05em; /* Match learning-message-content font size */
+    line-height: 1.6; /* Match learning-message-content line height */
+    width: 100%; /* Ensure pre takes full width */
+}
+
+.user-guess-buttons {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    width: 100%;
+    justify-content: center;
+}
+
+.guess-button {
+    flex-grow: 1; /* Make buttons expand evenly */
+    padding: 15px 0; /* Larger padding */
+    font-size: 1.2em;
+}
+
+.guess-phishy {
+    background: linear-gradient(145deg, #dc3545, #b02a37); /* Red gradient */
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+}
+
+.guess-phishy:hover {
+    background: linear-gradient(145deg, #c82333, #9a202c);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+}
+
+.guess-not-phishy {
+    background: linear-gradient(145deg, #28a745, #1e7e34); /* Green gradient */
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.guess-not-phishy:hover {
+    background: linear-gradient(145deg, #218838, #1c742c);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.6);
+}
+
+.feedback-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.feedback-confirmation {
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+.learning-result-section {
+    width: 100%;
+    background-color: #202020;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.prediction-display, .correct-answer {
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #333;
+    margin-bottom: 10px;
+}
+
+.prediction-display p, .correct-answer p {
+    margin: 5px 0;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.result-label {
+    font-weight: 700;
+    font-size: 1.2em;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.2); /* Subtle text glow */
+}
+
+.explanation-text {
+    font-size: 0.95em;
+    color: #bbb;
+    line-height: 1.5;
+    margin-top: 10px;
+}
+
+.next-button {
+    margin-top: 20px;
+    background: linear-gradient(145deg, #00c6ff, #0072ff); /* Re-using sleek button style */
+}
+
+/* NEW: Styles for the loading message within challenge-email-container */
+.loading-message { 
+    text-align: center;
+    color: #00ffff;
+    font-style: italic;
+    padding: 20px;
+    display: flex; /* Make it a flex container to center spinner and text */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Take full width for centering */
+}
+
+/* Re-using spinner style from main page */
+.loading-message .spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #00ffff; 
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+/* Styles for the error messages injected into challenge-email-container */
+.error-loading-message, .challenge-completed-message {
+    text-align: center;
+    color: #dc3545; /* Red for errors */
+    font-style: italic;
+    padding: 20px;
+    width: 100%; /* Take full width */
+}
+
+.challenge-completed-message {
+    color: #28a745; /* Green for completion message */
+}
+
+.selected-guess {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.7) inset !important; /* Inset white glow on selected button */
+    border: 1px solid #fff !important;
+}
+
+.back-button {
+    display: inline-block;
+    background-color: transparent;
+    color: #00ffff;
+    border: 1px solid #00ffff;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9em;
+    text-decoration: none;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #00ffff20;
+    color: #ffffff;
+    border-color: #ffffff;
 }

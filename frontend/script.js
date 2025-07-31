@@ -1,7 +1,7 @@
 // Get references to HTML elements
 const emailInput = document.getElementById('emailInput');
 const evaluateButton = document.getElementById('evaluateButton');
-const pasteButton = document.getElementById('pasteButton');
+const pasteButton = document.getElementById('pasteButton'); 
 const loadingIndicator = document.getElementById('loadingIndicator');
 const resultCard = document.getElementById('resultCard');
 const predictionIcon = document.getElementById('predictionIcon');
@@ -10,6 +10,8 @@ const errorMessage = document.getElementById('errorMessage');
 const reportButton = document.getElementById('reportButton');
 
 // Define your backend API URL
+// IMPORTANT: Keep your Flask backend running locally on http://127.0.0.1:5000/
+// If you deploy to Render later, CHANGE THIS to your Render URL (e.g., 'https://your-spam-api.onrender.com/predict').
 const API_URL = 'http://127.0.0.1:5000/predict';
 
 // Function to reset UI state
@@ -31,18 +33,23 @@ pasteButton.addEventListener('click', async () => {
     errorMessage.textContent = ''; // Clear any previous errors
 
     try {
+        // Check if the Clipboard API is supported by the browser and has readText method
         if (navigator.clipboard && navigator.clipboard.readText) {
             const clipboardText = await navigator.clipboard.readText();
             emailInput.value = clipboardText; // Paste the text into the textarea
         } else {
             errorMessage.textContent = 'Clipboard API not fully supported by your browser.';
             console.error('Clipboard API not fully supported or permission denied by default.');
+            // Fallback for older browsers or if initial permission is denied:
+            // Instruct user to manually paste.
         }
     } catch (err) {
+        // This catch block handles cases where permission is denied or other errors occurs
         errorMessage.textContent = 'Failed to read from clipboard. Please grant permission or paste manually.';
         console.error('Failed to read clipboard contents: ', err);
     }
 });
+
 
 // Add an event listener to the evaluate button
 evaluateButton.addEventListener('click', async () => {
