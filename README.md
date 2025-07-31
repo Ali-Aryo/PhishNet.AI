@@ -28,7 +28,7 @@ PhishNet.AI is a web application designed to detect and classify phishing attemp
 ## Prerequisites
 Before you start, ensure you have the following installed on your system:
 
-- **Python 3.9+** (Recommended: Python 3.9 or 3.10)
+- **Python 3.11+**
 - **Git** (for cloning the repository)
 - **Visual Studio Code (VS Code)** (for code editing and Live Server)
 
