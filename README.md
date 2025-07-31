@@ -1,102 +1,152 @@
-PhishNet.AI
-🎣 PhishNet.AI: Intelligent Phishing Detection
-PhishNet.AI is a web application designed to detect and classify phishing attempts. Leveraging a trained machine learning model, it analyzes email, Google Chat, Slack or other text content to identify malicious patterns, providing users with a tool to enhance their online security. Beyond basic detection, it includes an interactive learning mode to help users improve their own ability to spot phishing emails.
 
-Quick Links / Overview
-Features
+# 🎣 PhishNet.AI: Intelligent Phishing Detection
 
-Prerequisites
+PhishNet.AI is a web application designed to detect and classify phishing attempts. Leveraging a trained machine learning model, it analyzes email, Google Chat, Slack, or other text content to identify malicious patterns, providing users with a tool to enhance their online security. Beyond basic detection, it includes an interactive learning mode to help users improve their own ability to spot phishing emails.
 
-Installation & Setup
+---
 
-Usage
+## Quick Links / Overview
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation & Setup](#installation--setup)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [Technologies Used](#technologies-used)
 
-Project Structure
+---
 
-Prerequisites
+## Features
+- **Real-time Phishing Prediction:** Classifies email and text content as "Spam" or "Not Spam" using a pre-trained SVC model and TF-IDF vectorizer via a dedicated API. Users can input text manually or paste from the clipboard. The UI provides dynamic feedback with loading indicators, visual glows (red for Spam, green for Not Spam), and relevant icons. A "Report Phishing" button is available for non-spam results.
+- **Interactive Learning Mode:** Enhances user skills by presenting challenge emails for classification. Users guess "Phishy" or "Not Phishy," then receive immediate feedback comparing their guess to the model's prediction and the true label. A "Next Email" button allows for continuous practice.
+- **Comprehensive Web Interface:** A user-friendly frontend built with HTML, CSS, and JavaScript, offering seamless navigation between prediction and learning modes. The design features a modern, dark theme with high-contrast elements, clear typography, and interactive components.
+- **Robust Flask-RESTX Backend:** Python-based Flask backend serving the machine learning model and managing API endpoints, complete with interactive Swagger UI documentation.
+- **Automated Email Preprocessing:** Consistent text cleaning pipeline (removing special characters/numbers, lowercasing, stopwords removal) ensures accurate model predictions.
+- **Machine Learning Pipeline:** Includes a full pipeline for model training: data loading/cleaning, TF-IDF vectorization, data splitting, SVC model training/evaluation, and RandomUnderSampler for class imbalance.
+
+---
+
+## Prerequisites
 Before you start, ensure you have the following installed on your system:
 
-Python 3.9+
+- Python 3.9+
+- Git
+- Visual Studio Code (VS Code)
 
-Git
+---
 
-Visual Studio Code (VS Code)
+## Installation & Setup
 
-Installation & Setup
-To get PhishNet.AI up and running on your local machine, follow these detailed steps:
-
-1. Clone the Repository
+### 1. Clone the Repository
 Get the latest project code onto your local machine from GitHub.
 
-Open your Git Bash (MINGW64) terminal (or any terminal where Git commands work). Navigate to the directory where you store your GitHub repositories (e.g., ~/Desktop/Github Repos/).
-
-cd "~/Desktop/Github Repos/" # Use quotes for paths with spaces
-
-Clone the project repository. Replace https://github.com/Ali-Aryo/PhishNet.AI.git with the actual URL of your team's GitHub repository if it's different.
-
+```sh
 git clone https://github.com/Ali-Aryo/PhishNet.AI.git
+cd PhishNet.AI
+```
 
-Navigate into the newly cloned project directory:
-
-cd PhishNet.AI # Replace PhishNet.AI with the actual name of the folder created by cloning.
-
-2. Backend Setup and Run
+### 2. Backend Setup and Run
 The backend provides the Machine Learning API that the frontend communicates with.
 
-Navigate to Backend Directory
-From your project's root directory in the terminal, move into the backend folder:
-
+Navigate to Backend Directory:
+```sh
 cd backend
-
-Create & Activate Virtual Environment
-A virtual environment isolates your project's Python dependencies.
-
-Create the virtual environment:
-
+```
+Create & Activate Virtual Environment:
+```sh
 python -m venv venv
-
-Note for other users: If python -m venv venv doesn't work, try py -m venv venv or use the full path to your Python executable if it's not in your PATH.
-
-Activate the Virtual Environment:
-
-On Windows (Git Bash/MinGW64):
-
-source venv/Scripts/activate
-
-On macOS/Linux:
-
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
 source venv/bin/activate
-
-Expected: Your terminal prompt will change to start with (venv), e.g., (venv) user@host ~/path/to/backend$. This indicates the virtual environment is active.
-
-Install Python Dependencies
-All required libraries are listed in requirements.txt. With the virtual environment activated, install the dependencies:
-
+```
+Install Python Dependencies:
+```sh
 pip install -r requirements.txt
-
-Note: This step will take several minutes, especially for larger libraries like tensorflow and scikit-learn. Please be patient.
-
-Download NLTK Data
-Your text preprocessing requires NLTK stopwords data. With the virtual environment still activated, download the NLTK stopwords:
-
+```
+Download NLTK Data:
+```sh
 python -c "import nltk; nltk.download('stopwords')"
-
-Run the Flask Backend Server
-This will start your ML API, listening for requests from the frontend. In the same terminal where your virtual environment is active, run the Flask app:
-
+```
+Run the Flask Backend Server:
+```sh
 python app.py
+```
 
-Expected Output: You should see messages confirming:
+### 3. Frontend Setup and View
+Open the project in VS Code. Install the "Live Server" extension. In the `frontend` folder, right-click `index.html` and select **Open with Live Server**. The app will open in your browser.
 
-Trained SVC model 'spam_classifier_model.pkl' loaded successfully!
+---
 
-TF-IDF vectorizer 'tfidf_vectorizer.pkl' loaded successfully!
+## Usage
 
-Flask serving on http://127.0.0.1:5000.
+### 1. Main Detector Page
+- Enter or paste an email message into the text area.
+- Click **Paste** to paste from clipboard.
+- Click **Evaluate** to send the message to the backend for detection.
+- The result card will show "Not Spam" (green) or "Spam" (red) with an icon.
+- "Report Phishing" is a placeholder for future features.
 
-Messages about challenge_emails.json loading.
+### 2. Learning Mode
+- Click the "Practice Your Phish Finding" card.
+- An email is displayed; guess "Phishy" or "Not Phishy."
+- View results and explanations.
+- Click **Next Email** for more practice.
 
-Keep this terminal window open and running. Your frontend will communicate with this server.
+---
+
+## Project Structure
+
+```
+PhishNet.AI/
+├── backend/
+│   ├── app.py
+│   ├── requirements.txt
+│   ├── spam_classifier_model.pkl
+│   └── tfidf_vectorizer.pkl
+├── frontend/
+│   ├── index.html
+│   ├── learn.html
+│   ├── script.js
+│   ├── learn.js
+│   ├── style.css
+│   └── images/
+│       └── phishnet.png
+├── Dataset/
+│   ├── SpamAssasin.csv
+│   └── README.md
+└── README.md
+```
+
+---
+
+## Technologies Used
+
+### Backend
+- **Python**: Core backend logic
+- **Flask**: Web framework for API
+- **Flask-RESTX**: API documentation (Swagger UI)
+- **Scikit-learn**: Machine learning (SVC, TfidfVectorizer)
+- **Joblib**: Model persistence
+- **Pandas**: Data manipulation
+- **NLTK**: Stopwords for preprocessing
+- **Imblearn**: RandomUnderSampler for class imbalance
+- **NumPy & SciPy**: Numerical operations
+- **Matplotlib & Seaborn**: Visualizations (training phase)
+
+### Frontend
+- **HTML5, CSS3**: UI structure and styling
+- **JavaScript**: Interactivity (script.js, learn.js)
+- **Font Awesome**: Icons
+- **Google Fonts (Inter)**: Typography
+- **Live Server (VS Code Extension)**: Local development
+
+### Data
+- **CSV (SpamAssasin.csv)**: Dataset for training and learning mode
+
+---
+
+## License
+This project is for educational and demonstration purposes.
 
 3. Frontend Setup and View
 The frontend is your user interface.
