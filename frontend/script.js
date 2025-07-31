@@ -107,6 +107,6 @@ evaluateButton.addEventListener('click', async () => {
 });
 
 reportButton.addEventListener('click', () => {
-    alert('Thank you for reporting! (This is a placeholder action.)');
+    alert('Thank you for reporting! In the future, this will allow you to report phishing emails directly to the security team for further investigation amd model integration. ');
 });
 resetUI();
