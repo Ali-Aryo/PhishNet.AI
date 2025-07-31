@@ -592,3 +592,47 @@ textarea {
     font-size: 0.9em;
     color: #999;
 }
+
+/* NEW: Styles for the intro video container */
+.intro-video-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 100;
+    background-color: #000;
+    opacity: 1; 
+    transition: opacity 1s ease-in-out; /* Still need this for fade-out */
+}
+
+.intro-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* MODIFIED: The main container is back to its default, fully visible state */
+.main-container {
+    width: 90%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* NEW: Classes specifically for the landing page fade effect */
+.landing-content-wrapper {
+    opacity: 0; /* Initially invisible */
+    transition: opacity 1s ease-in-out;
+}
+
+.landing-content-wrapper.visible {
+    opacity: 1; /* Fade in when this class is added */
+}
+
+/* A utility class to hide elements without transition */
+.hidden {
+    display: none !important;
+}
