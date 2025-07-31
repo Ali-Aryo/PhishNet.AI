@@ -66,10 +66,6 @@ body {
     border-color: rgba(255, 255, 255, 0.8); /* Make the border itself whiter */
 }
 
-.input-card {
-    /* Specific styles for the input card if needed */
-}
-
 .input-actions {
     position: relative; /* For absolute positioning of paste button */
     margin-bottom: 20px; /* Space between input section and evaluate button */
@@ -496,4 +492,103 @@ textarea {
     background-color: #00ffff20;
     color: #ffffff;
     border-color: #ffffff;
+}
+
+.landing-card {
+    text-align: center;
+}
+
+.landing-text {
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.navigation-buttons-card {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.navigation-title {
+    font-size: 1.8em;
+    color: #00ffff;
+    margin-bottom: 0;
+}
+
+.nav-button {
+    text-align: center;
+    padding: 15px 30px;
+    text-decoration: none
+}
+
+/* New style for Back to Home card on other pages */
+.back-to-home-card {
+    text-align: center;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.back-to-home-card h2 {
+    color: #00ffff;
+    text-shadow: none;
+    font-size: 1.2em;
+    margin: 0;
+    transition: all 0.3s ease;
+}
+
+.back-to-home-card:hover h2 {
+    color: #fff;
+    transform: translateX(-5px); /* Move text slightly left on hover */
+}
+
+/* NEW: Styles for the progress circles */
+.progress-circles-container {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 0px;
+    width: 100%;
+}
+
+.progress-circle {
+    position: relative; /* <-- ADD THIS LINE */
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    /* REMOVE justify-content and flex-end here as we're using absolute positioning now */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #2a2a2a;
+}
+
+.progress-circle-inner {
+    width: 90px;
+    height: 90px;
+    background-color: #1a1a1a; /* Inner circle background */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4); /* Inner shadow */
+}
+
+.progress-text {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #e0e0e0;
+}
+
+.progress-label {
+    position: absolute; /* <-- CHANGE THIS LINE */
+    top: 90px; /* <-- CHANGE THIS LINE to a value that pushes the text below the circle */
+    font-size: 0.9em;
+    color: #999;
 }

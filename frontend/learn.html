@@ -6,7 +6,8 @@
     <title>Learning Mode - PhishNet.AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="style.css"> </head>
+    <link rel="stylesheet" href="style.css"> 
+</head>
 <body>
     <div class="main-container">
         <header class="app-header">
@@ -15,7 +16,23 @@
         </header>
 
         <div class="card learning-card">
-            <a href="index.html" class="back-button">&larr; Back to Detector</a>
+            <a href="landing.html" class="back-button">&larr; Back to Home</a>
+            
+            <div class="progress-circles-container">
+                <div class="progress-circle">
+                    <div class="progress-circle-inner" id="userProgress">
+                        <span id="userProgressText" class="progress-text">0%</span>
+                    </div>
+                    <p class="progress-label">Your Score</p>
+                </div>
+                <div class="progress-circle">
+                    <div class="progress-circle-inner" id="modelProgress">
+                        <span id="modelProgressText" class="progress-text">0%</span>
+                    </div>
+                    <p class="progress-label">Model's Score</p>
+                </div>
+            </div>
+
             <h2 class="challenge-title">Is this message Phishy?</h2>
             
             <div id="challengeContentArea" class="challenge-email-container">
@@ -43,5 +60,6 @@
         </div>
     </div>
 
-    <script src="learn.js"></script> </body>
+    <script src="learn.js"></script> 
+</body>
 </html>
