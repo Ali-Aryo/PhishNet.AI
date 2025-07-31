@@ -3,28 +3,40 @@ from flask_cors import CORS
 import joblib
 import numpy as np
 import os
-import json # NEW: For handling JSON (even if not saving feedback to file, good for logging)
-import pandas as pd # NEW: For loading the dataset
-import random # NEW: For selecting random emails for learning feature
-from datetime import datetime # NEW: For timestamps in feedback (optional logging)
+import json
+import pandas as pd
+import random
+from datetime import datetime
+from flask_restx import Api, Namespace, Resource, fields # NEW IMPORTS
 
-app = Flask(__name__) 
+app = Flask(__name__)
+# Enable CORS for all origins, required for Live Server to talk to Flask
 CORS(app)
+
+# Initialize the Flask-RestX API
+api = Api(
+    app,
+    version='1.0',
+    title='PhishNet.AI API',
+    description='A machine learning API for detecting phishing emails and a learning mode.',
+    doc='/swagger-ui' # The URL for the Swagger UI page
+)
+
+# Create a namespace for our API endpoints
+api_ns = Namespace('phishnet', description='PhishNet.AI API Endpoints')
+api.add_namespace(api_ns)
 
 # --- Configuration ---
 MODEL_FILENAME = 'spam_classifier_model.pkl'
 VECTORIZER_FILENAME = 'tfidf_vectorizer.pkl'
-DATASET_FILE = 'SpamAssasin.csv' # NEW: Your main dataset file
+DATASET_FILE = 'SpamAssasin.csv'
 
-# --- Global variables for loaded model, vectorizer, and learning data ---
+# --- Global variables for loaded assets and learning data ---
 model = None
 vectorizer = None
-learning_emails_df = None # NEW: DataFrame to hold emails for the learning feature
+learning_emails_df = None 
 
-# --- Define NLTK stopwords (CRITICAL to be identical to Colab's preprocessing) ---
-# Ensure NLTK stopwords are available in your backend env too:
-# In your MINGW64 terminal, with venv active, run once:
-# python -c "import nltk; nltk.download('stopwords')"
+# Define NLTK stopwords (CRITICAL to be identical to Colab's preprocessing)
 import re
 import nltk
 from nltk.corpus import stopwords
@@ -33,7 +45,7 @@ try:
     stop_words = set(stopwords.words('english'))
 except LookupError:
     print("NLTK stopwords not found. Please run 'python -c \"import nltk; nltk.download(\'stopwords\')\"' in your terminal.")
-    stop_words = set() # Fallback to empty set if not found
+    stop_words = set() 
 
 def clean_text_for_prediction(text):
     """Replicates the text cleaning logic from your Colab notebook."""
@@ -43,10 +55,10 @@ def clean_text_for_prediction(text):
     filtered_words = [word for word in words if word not in stop_words]
     return ' '.join(filtered_words)
 
-# --- Function to load the model and vectorizer ---
+# --- Function to load the model and assets ---
 def load_assets():
     """Loads the trained model, TF-IDF vectorizer, and learning dataset."""
-    global model, vectorizer, learning_emails_df # Declare learning_emails_df global
+    global model, vectorizer, learning_emails_df 
     
     # Load Model
     if os.path.exists(MODEL_FILENAME):
@@ -56,6 +68,7 @@ def load_assets():
         except Exception as e:
             print(f"Error loading model from '{MODEL_FILENAME}': {e}")
             model = None
+    # ... (Vectorizor and Dataset loading logic remains the same)
     else:
         print(f"Model file '{MODEL_FILENAME}' not found. Prediction requests will fail.")
         model = None
@@ -72,26 +85,19 @@ def load_assets():
         print(f"Vectorizer file '{VECTORIZER_FILENAME}' not found. Prediction requests will fail.")
         vectorizer = None
 
-    # NEW: Load the dataset for learning emails (same as training data)
+    # Load the dataset for learning emails (same as training data)
     try:
-        # Construct path to SpamAssasin.csv relative to app.py
-        # Assumes SpamAssasin.csv is in the 'dataset' folder, which is sibling to 'backend'
         dataset_path = os.path.join(os.path.dirname(__file__), '..', 'dataset', DATASET_FILE)
-        
-        # Fallback if the above path doesn't work (e.g., if dataset is directly in backend/ for testing)
         if not os.path.exists(dataset_path):
              dataset_path = os.path.join(os.path.dirname(__file__), DATASET_FILE) 
         
         if os.path.exists(dataset_path):
             df_full = pd.read_csv(dataset_path)
-            # Apply the same cleaning as in Colab notebook
-            df_full = df_full.drop('receiver', axis=1, errors='ignore') # 'errors=ignore' prevents error if 'receiver' column doesn't exist
+            df_full = df_full.drop('receiver', axis=1, errors='ignore')
             df_full = df_full.dropna(subset=['body', 'subject'])
             
-            # For the learning feature, we need raw body and true label
             learning_emails_df = df_full[['body', 'label']].copy()
-            # Add a unique ID for each email
-            learning_emails_df['id'] = range(1, len(learning_emails_df) + 1) # IDs starting from 1
+            learning_emails_df['id'] = range(1, len(learning_emails_df) + 1)
             print(f"Dataset for learning feature loaded from '{dataset_path}'. {len(learning_emails_df)} emails available.")
         else:
             print(f"Dataset '{DATASET_FILE}' not found at '{dataset_path}'. Learning feature will be disabled.")
@@ -100,105 +106,128 @@ def load_assets():
         print(f"Error loading dataset for learning feature: {e}")
         learning_emails_df = None
 
-# Load assets when the application starts
 with app.app_context():
     load_assets()
 
-# --- API Endpoint for Prediction (No changes from your provided version) ---
-@app.route('/predict', methods=['POST'])
-def predict():
-    """
-    Handles prediction requests for email spam classification.
-    Expects JSON input with 'email_body' key containing the email text.
-    """
-    if model is None or vectorizer is None:
-        return jsonify({'error': 'Model or Vectorizer not loaded. Cannot process prediction.'}), 500
+# --- Define API Models for Swagger/OpenAPI Documentation ---
+predict_request_model = api_ns.model('PredictRequest', {
+    'email_body': fields.String(required=True, description='The body of the email to be analyzed.')
+})
 
-    try:
+predict_response_model = api_ns.model('PredictResponse', {
+    'prediction': fields.String(description='The model\'s prediction: "Spam" or "Not Spam".')
+})
+
+challenge_response_model = api_ns.model('ChallengeEmail', {
+    'id': fields.Integer(description='The unique ID of the email challenge.'),
+    'content': fields.String(description='The full text content of the email.'),
+    'true_label': fields.String(description='The actual label of the email from the dataset.'),
+    'model_prediction': fields.String(description='The model\'s prediction for this email.'),
+    'explanation': fields.String(description='An explanation for the email\'s classification.')
+})
+
+feedback_request_model = api_ns.model('FeedbackRequest', {
+    'email_id': fields.Integer(required=True, description='The ID of the email challenge.'),
+    'user_guess': fields.String(required=True, description='The user\'s guess: "Phishy" or "Not Phishy".'),
+    'model_prediction': fields.String(required=True, description='The model\'s prediction for this email.'),
+    'true_label': fields.String(required=True, description='The true label from the dataset.'),
+    'timestamp': fields.String(description='ISO timestamp of the feedback submission.'),
+    'message': fields.String(required=True, description='The email content submitted for feedback.')
+})
+
+feedback_response_model = api_ns.model('FeedbackResponse', {
+    'status': fields.String(description='Status of the feedback submission.'),
+    'message': fields.String(description='A message about the submission.')
+})
+
+# --- API Endpoint for Prediction ---
+@api_ns.route('/predict')
+class Predict(Resource):
+    @api_ns.doc('Predicts if an email is spam')
+    @api_ns.expect(predict_request_model)
+    @api_ns.marshal_with(predict_response_model)
+    def post(self):
+        """Classifies an email as Spam or Not Spam."""
+        if model is None or vectorizer is None:
+            api.abort(500, 'Model or Vectorizer not loaded. Cannot process prediction.')
+
         data = request.get_json(force=True)
-        if 'email_body' not in data:
-            return jsonify({'error': 'Missing "email_body" in request. Please send the email text.'}), 400
-
         raw_email_body = data['email_body']
-        cleaned_email_body = clean_text_for_prediction(raw_email_body)
-        processed_input = vectorizer.transform([cleaned_email_body])
-        predictions = model.predict(processed_input)
-        prediction_label = "Spam" if predictions[0] == 1 else "Not Spam"
-
-        return jsonify({'prediction': prediction_label})
-
-    except Exception as e:
-        print(f"Error processing prediction request: {e}")
-        return jsonify({'error': str(e)}), 500
-
-# NEW API Endpoint: To retrieve a RANDOM challenge email for learning mode
-@app.route('/get_challenge_email', methods=['GET']) # Removed <int:email_id>
-def get_challenge_email():
-    global learning_emails_df
-    if learning_emails_df is None or learning_emails_df.empty:
-        return jsonify({'error': 'Learning emails dataset not loaded or is empty.'}), 500
-
-    # Select a random index for the email
-    random_index = random.randint(0, len(learning_emails_df) - 1)
-    email_data = learning_emails_df.iloc[random_index]
-    
-    email_body = email_data['body']
-    true_label_raw = email_data['label'] # Raw label (0 or 1)
-    true_label_display = "Spam" if true_label_raw == 1 else "Not Spam"
-
-    # Get model's prediction for this email
-    model_prediction_label = "N/A" # Default if model/vectorizer not ready
-    if model is not None and vectorizer is not None:
+        
         try:
-            cleaned_body = clean_text_for_prediction(email_body)
-            transformed_body = vectorizer.transform([cleaned_body])
-            model_pred_raw = model.predict(transformed_body)[0]
-            model_prediction_label = "Spam" if model_pred_raw == 1 else "Not Spam"
+            cleaned_email_body = clean_text_for_prediction(raw_email_body)
+            processed_input = vectorizer.transform([cleaned_email_body])
+            predictions = model.predict(processed_input)
+            prediction_label = "Spam" if predictions[0] == 1 else "Not Spam"
+            return {'prediction': prediction_label}
         except Exception as e:
-            print(f"Error predicting on challenge email (random pick): {e}")
-            model_prediction_label = "Prediction Error"
+            api.abort(400, f'Error processing prediction: {str(e)}')
 
-    return jsonify({
-        'id': int(email_data['id']), # Convert to standard Python int
-        'content': email_body,
-        'true_label': true_label_display,
-        'explanation': "This is a placeholder explanation for learning. In a real app, this would be a detailed reason why the email is phishing/not phishing.", # Generic explanation
-        'model_prediction': model_prediction_label
-    }), 200
+# --- API Endpoint for Learning Feature ---
+@api_ns.route('/get_challenge_email')
+class GetChallengeEmail(Resource):
+    @api_ns.doc('Gets a random challenge email for learning mode')
+    @api_ns.marshal_with(challenge_response_model)
+    def get(self):
+        """Returns a random email challenge from the loaded dataset."""
+        global learning_emails_df
+        if learning_emails_df is None or learning_emails_df.empty:
+            api.abort(500, 'Learning emails dataset not loaded or is empty.')
 
-# NEW API Endpoint: To receive user feedback on learning challenges (for logging)
-@app.route('/submit_learning_feedback', methods=['POST'])
-def submit_learning_feedback():
-    """Receives user feedback on learning challenge (e.g., user's guess)."""
-    try:
+        random_index = random.randint(0, len(learning_emails_df) - 1)
+        email_data = learning_emails_df.iloc[random_index]
+        
+        email_body = str(email_data['body']) # Ensure body is string
+        true_label_raw = email_data['label']
+        true_label_display = "Spam" if true_label_raw == 1 else "Not Spam"
+
+        model_prediction_label = "N/A"
+        if model is not None and vectorizer is not None:
+            try:
+                cleaned_body = clean_text_for_prediction(email_body)
+                transformed_body = vectorizer.transform([cleaned_body])
+                model_pred_raw = model.predict(transformed_body)[0]
+                model_prediction_label = "Spam" if model_pred_raw == 1 else "Not Spam"
+            except Exception as e:
+                print(f"Error predicting on challenge email: {e}")
+                model_prediction_label = "Prediction Error"
+
+        return {
+            'id': int(email_data['id']),
+            'content': email_body,
+            'true_label': true_label_display,
+            'explanation': "This is a placeholder explanation for learning. In a real app, this would be a detailed reason.",
+            'model_prediction': model_prediction_label
+        }
+
+@api_ns.route('/submit_learning_feedback')
+class SubmitLearningFeedback(Resource):
+    @api_ns.doc('Submits user feedback on a learning challenge')
+    @api_ns.expect(feedback_request_model)
+    @api_ns.marshal_with(feedback_response_model)
+    def post(self):
+        """Receives user feedback on learning challenges."""
         feedback_data = request.get_json(force=True)
-        # For a hackathon, we'll just print this to the backend console.
-        # In a real application, you might save this to a file or database for later analysis.
         print(f"--- Received Learning Feedback ---")
         print(f"Timestamp: {datetime.now().isoformat()}")
-        print(f"Email ID: {feedback_data.get('id')}")
+        print(f"Email ID: {feedback_data.get('email_id')}")
         print(f"User Guess: {feedback_data.get('user_guess')}")
         print(f"Model Prediction: {feedback_data.get('model_prediction')}")
         print(f"True Label: {feedback_data.get('true_label')}")
-        print(f"Message Snippet: {feedback_data.get('message')[:100]}...") # Print first 100 chars
+        print(f"Message Snippet: {feedback_data.get('message')[:100]}...")
         print(f"----------------------------------")
         
-        return jsonify({'status': 'success', 'message': 'Feedback received!'}), 200
-    except Exception as e:
-        print(f"Error receiving feedback: {e}")
-        return jsonify({'error': str(e)}), 400
+        return {'status': 'success', 'message': 'Feedback received!'}
 
 # --- Health Check / Root Route ---
 @app.route('/')
 def home():
-    """Simple route to check if the API is running."""
     status = "running"
     if model is None or vectorizer is None:
         status = "running, but ML assets not loaded"
     if learning_emails_df is None:
         status += ", learning data not loaded"
-    return jsonify(message=f"ML Model API is {status}. Send a POST request to /predict for predictions. Visit /get_challenge_email/<id> for learning challenges.")
+    return jsonify(message=f"ML Model API is {status}. Visit /swagger-ui for API documentation.")
 
-# --- Run the Flask Application ---
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
