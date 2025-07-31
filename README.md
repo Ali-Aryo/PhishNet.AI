@@ -56,14 +56,14 @@ All required Python packages are listed in `backend/requirements.txt`. Key packa
 - matplotlib
 - seaborn
 
-To install all dependencies, use:
+To install all dependencies, make sure you are in the `backend` directory:
 ```sh
+cd backend
 pip install -r requirements.txt
 ```
 
 #### Additional Notes
 - If you encounter issues with `pip`, ensure it is up to date: `python -m pip install --upgrade pip`
-- For Apple Silicon (M1/M2) or Linux, some packages may require additional system libraries (e.g., `build-essential`, `python3-dev`).
 - If you see errors related to `nltk` or `scikit-learn`, try reinstalling those packages individually.
 
 ---
@@ -99,9 +99,9 @@ source venv/bin/activate
 
 
 **c. Install Python Dependencies:**
-Make sure you are in the `backend` directory before running the following commands:
+If you are not already in the `backend` directory, navigate there first:
 ```sh
-cd backend  
+cd backend
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
