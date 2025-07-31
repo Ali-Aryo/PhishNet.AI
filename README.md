@@ -97,8 +97,11 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
+
 **c. Install Python Dependencies:**
+Make sure you are in the `backend` directory before running the following commands:
 ```sh
+cd backend  
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
@@ -177,7 +180,8 @@ python app.py
 - **Google Fonts (Inter)**: Typography
 - **Live Server (VS Code Extension)**: Local development
 
+
 ### Data
-- **CSV (SpamAssasin.csv)**: Dataset for training and learning mode
+- **CSV ([SpamAssasin.csv](https://www.kaggle.com/datasets/naserabdullahalam/phishing-email-dataset/data?select=SpamAssasin.csv))**: Dataset for training and learning mode
 
 ---
