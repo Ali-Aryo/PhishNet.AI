@@ -108,6 +108,17 @@ pip install -r requirements.txt
 python -c "import nltk; nltk.download('stopwords')"
 ```
 
+## About NLTK
+
+**NLTK (Natural Language Toolkit)** is a leading Python library for working with human language data (text). In this project, NLTK is primarily used for:
+
+- Downloading and managing English stopwords (common words like "the", "is", "and" that are often removed during text preprocessing).
+- Supporting the text cleaning pipeline, which improves the accuracy of the machine learning model by filtering out irrelevant words.
+
+**Why is this important?**
+
+Removing stopwords and cleaning text helps the model focus on the most meaningful words in an email, making phishing detection more accurate. NLTK provides a reliable and widely-used set of stopwords and text processing tools for this purpose.
+
 **e. Run the Flask Backend Server:**
 ```sh
 python app.py
@@ -149,6 +160,7 @@ python app.py
 
 ## Technologies Used
 
+
 ### Backend
 - **Python**: Core backend logic
 - **Flask**: Web framework for API
@@ -156,10 +168,12 @@ python app.py
 - **Scikit-learn**: Machine learning (SVC, TfidfVectorizer)
 - **Joblib**: Model persistence
 - **Pandas**: Data manipulation
-- **NLTK**: Stopwords for preprocessing
+- **NLTK**: Natural Language Toolkit, used for text preprocessing 
 - **Imblearn**: RandomUnderSampler for class imbalance
 - **NumPy & SciPy**: Numerical operations
 - **Matplotlib & Seaborn**: Visualizations (training phase)
+
+---
 
 ### Frontend
 - **HTML5, CSS3**: UI structure and styling
