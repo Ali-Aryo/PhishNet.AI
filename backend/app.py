@@ -7,22 +7,19 @@ import json
 import pandas as pd
 import random
 from datetime import datetime
-from flask_restx import Api, Namespace, Resource, fields # NEW IMPORTS
+from flask_restx import Api, Namespace, Resource, fields
 
 app = Flask(__name__)
-# Enable CORS for all origins, required for Live Server to talk to Flask
 CORS(app)
 
-# Initialize the Flask-RestX API
 api = Api(
     app,
     version='1.0',
     title='PhishNet.AI API',
     description='A machine learning API for detecting phishing emails and a learning mode.',
-    doc='/swagger-ui' # The URL for the Swagger UI page
+    doc='/swagger-ui'
 )
 
-# Create a namespace for our API endpoints
 api_ns = Namespace('phishnet', description='PhishNet.AI API Endpoints')
 api.add_namespace(api_ns)
 
@@ -59,8 +56,6 @@ def clean_text_for_prediction(text):
 def load_assets():
     """Loads the trained model, TF-IDF vectorizer, and learning dataset."""
     global model, vectorizer, learning_emails_df 
-    
-    # Load Model
     if os.path.exists(MODEL_FILENAME):
         try:
             model = joblib.load(MODEL_FILENAME)
@@ -68,12 +63,10 @@ def load_assets():
         except Exception as e:
             print(f"Error loading model from '{MODEL_FILENAME}': {e}")
             model = None
-    # ... (Vectorizor and Dataset loading logic remains the same)
     else:
         print(f"Model file '{MODEL_FILENAME}' not found. Prediction requests will fail.")
         model = None
 
-    # Load Vectorizer
     if os.path.exists(VECTORIZER_FILENAME):
         try:
             vectorizer = joblib.load(VECTORIZER_FILENAME)
@@ -85,7 +78,6 @@ def load_assets():
         print(f"Vectorizer file '{VECTORIZER_FILENAME}' not found. Prediction requests will fail.")
         vectorizer = None
 
-    # Load the dataset for learning emails (same as training data)
     try:
         dataset_path = os.path.join(os.path.dirname(__file__), '..', 'dataset', DATASET_FILE)
         if not os.path.exists(dataset_path):
@@ -115,7 +107,8 @@ predict_request_model = api_ns.model('PredictRequest', {
 })
 
 predict_response_model = api_ns.model('PredictResponse', {
-    'prediction': fields.String(description='The model\'s prediction: "Spam" or "Not Spam".')
+    'prediction': fields.String(description='The model\'s prediction: "Spam" or "Not Spam".'),
+    'probability': fields.Float(description='The confidence score (probability) of the prediction.')
 })
 
 challenge_response_model = api_ns.model('ChallengeEmail', {
@@ -123,6 +116,7 @@ challenge_response_model = api_ns.model('ChallengeEmail', {
     'content': fields.String(description='The full text content of the email.'),
     'true_label': fields.String(description='The actual label of the email from the dataset.'),
     'model_prediction': fields.String(description='The model\'s prediction for this email.'),
+    'model_probability': fields.Float(description='The model\'s confidence score (probability) for the prediction.'),
     'explanation': fields.String(description='An explanation for the email\'s classification.')
 })
 
@@ -157,9 +151,13 @@ class Predict(Resource):
         try:
             cleaned_email_body = clean_text_for_prediction(raw_email_body)
             processed_input = vectorizer.transform([cleaned_email_body])
-            predictions = model.predict(processed_input)
-            prediction_label = "Spam" if predictions[0] == 1 else "Not Spam"
-            return {'prediction': prediction_label}
+            
+            prediction = model.predict(processed_input)[0]
+            prediction_label = "Spam" if prediction == 1 else "Not Spam"
+            
+            probability = float(model.predict_proba(processed_input)[0][1]) # Probability of class 1 (Spam)
+            
+            return {'prediction': prediction_label, 'probability': probability}
         except Exception as e:
             api.abort(400, f'Error processing prediction: {str(e)}')
 
@@ -177,17 +175,19 @@ class GetChallengeEmail(Resource):
         random_index = random.randint(0, len(learning_emails_df) - 1)
         email_data = learning_emails_df.iloc[random_index]
         
-        email_body = str(email_data['body']) # Ensure body is string
+        email_body = str(email_data['body'])
         true_label_raw = email_data['label']
         true_label_display = "Spam" if true_label_raw == 1 else "Not Spam"
 
         model_prediction_label = "N/A"
+        model_probability_value = 0.0
         if model is not None and vectorizer is not None:
             try:
                 cleaned_body = clean_text_for_prediction(email_body)
                 transformed_body = vectorizer.transform([cleaned_body])
                 model_pred_raw = model.predict(transformed_body)[0]
                 model_prediction_label = "Spam" if model_pred_raw == 1 else "Not Spam"
+                model_probability_value = float(model.predict_proba(transformed_body)[0][1])
             except Exception as e:
                 print(f"Error predicting on challenge email: {e}")
                 model_prediction_label = "Prediction Error"
@@ -197,7 +197,8 @@ class GetChallengeEmail(Resource):
             'content': email_body,
             'true_label': true_label_display,
             'explanation': "This is a placeholder explanation for learning. In a real app, this would be a detailed reason.",
-            'model_prediction': model_prediction_label
+            'model_prediction': model_prediction_label,
+            'model_probability': model_probability_value
         }
 
 @api_ns.route('/submit_learning_feedback')
@@ -219,7 +220,6 @@ class SubmitLearningFeedback(Resource):
         
         return {'status': 'success', 'message': 'Feedback received!'}
 
-# --- Health Check / Root Route ---
 @app.route('/')
 def home():
     status = "running"

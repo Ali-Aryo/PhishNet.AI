@@ -1,6 +1,5 @@
 // Get references to HTML elements on the learning page
-// NEW: This is the single div that holds all dynamic content
-const challengeContentArea = document.getElementById('challengeContentArea'); 
+const challengeEmailContent = document.getElementById('challengeEmailContent');
 const guessPhishyButton = document.getElementById('guessPhishy');
 const guessNotPhishyButton = document.getElementById('guessNotPhishy');
 const feedbackButtonsContainer = document.querySelector('.user-guess-buttons');
@@ -10,13 +9,14 @@ const modelPredictionDisplay = document.getElementById('modelPredictionDisplay')
 const trueLabelDisplay = document.getElementById('trueLabelDisplay');
 const explanationText = document.getElementById('explanationText');
 const nextEmailButton = document.getElementById('nextEmailButton');
-const learningErrorMessage = document.getElementById('learningErrorMessage');
 
 // NEW: Progress circle elements
 const userProgressCircle = document.getElementById('userProgress');
 const modelProgressCircle = document.getElementById('modelProgress');
 const userProgressText = document.getElementById('userProgressText');
 const modelProgressText = document.getElementById('modelProgressText');
+// NEW: Learning page probability display
+const modelProbabilityText = document.getElementById('modelProbabilityText');
 
 // Define your backend API URLs
 const CHALLENGE_API_URL = 'http://127.0.0.1:5000/phishnet/get_challenge_email'; 
@@ -48,41 +48,36 @@ function updateProgressCircles() {
     modelProgressText.textContent = `${Math.round(modelPercentage)}%`;
 }
 
-// Function to reset UI state for a new email challenge
+// Function to reset UI state
 function resetLearningUI() {
-    // NEW: Inject the loading spinner and message directly into the container
-    challengeContentArea.innerHTML = `
-        <p class="loading-message">
-            <div class="spinner"></div>
-            Loading email...
-        </p>
-    `;
-    
-    // Hide other sections
+    challengeEmailContent.classList.add('hidden'); 
+    challengeEmailContent.innerHTML = '';
+    loadingMessage.classList.remove('hidden'); 
     learningResultSection.classList.add('hidden'); 
     learningErrorMessage.textContent = '';
     feedbackButtonsContainer.classList.add('hidden'); 
-    nextEmailButton.classList.add('hidden');
-
-    // Reset guess buttons
     guessPhishyButton.disabled = false;
     guessNotPhishyButton.disabled = false;
     guessPhishyButton.classList.remove('selected-guess');
     guessNotPhishyButton.classList.remove('selected-guess');
+    nextEmailButton.classList.add('hidden');
+    learningErrorMessage.textContent = ''; 
 }
 
 // Function to fetch and display a new learning email challenge
 async function fetchLearningEmail() {
-    resetLearningUI(); // Always reset the UI before fetching a new email
+    resetLearningUI();
 
     try {
         console.log(`Attempting to fetch a random email.`);
         const response = await fetch(CHALLENGE_API_URL);
         
+        loadingMessage.classList.add('hidden'); 
+
         if (!response.ok) {
             if (response.status === 404) {
-                challengeContentArea.innerHTML = '<p class="challenge-completed-message">You have completed all available challenges! Go back to the detector.</p>';
-                learningErrorMessage.textContent = '';
+                challengeEmailContent.innerHTML = '<p class="challenge-completed-message">You have completed all available challenges! Go back to the detector.</p>';
+                challengeEmailContent.classList.remove('hidden');
                 guessPhishyButton.disabled = true;
                 guessNotPhishyButton.disabled = true;
                 return null;
@@ -94,20 +89,20 @@ async function fetchLearningEmail() {
         console.log('Received email data:', currentEmailData);
 
         if (currentEmailData && currentEmailData.content) {
-            challengeContentArea.innerHTML = `<pre>${currentEmailData.content}</pre>`; // Place content directly
-            feedbackButtonsContainer.classList.remove('hidden'); // Show the guess buttons
+            challengeEmailContent.innerHTML = `<pre>${currentEmailData.content}</pre>`; 
+            challengeEmailContent.classList.remove('hidden');
+            feedbackButtonsContainer.classList.remove('hidden');
         } else {
-            challengeContentArea.innerHTML = '<p class="error-loading-message">Error loading challenge. Invalid data.</p>';
+            challengeEmailContent.innerHTML = '<p class="error-loading-message">Error loading challenge. Invalid data.</p>';
             learningErrorMessage.textContent = "Invalid data received from API.";
             console.error("No content or invalid data in fetched email response:", currentEmailData);
             guessPhishyButton.disabled = true;
             guessNotPhishyButton.disabled = true;
         }
-
         return currentEmailData;
     } catch (error) {
         console.error('Error fetching learning email:', error); 
-        challengeContentArea.innerHTML = '<p class="error-loading-message">Error loading challenge. Please try again.</p>';
+        challengeEmailContent.innerHTML = '<p class="error-loading-message">Error loading challenge. Please try again.</p>';
         learningErrorMessage.textContent = `Failed to load email: ${error.message}. Please check console for details.`;
         guessPhishyButton.disabled = true;
         guessNotPhishyButton.disabled = true;
@@ -124,20 +119,16 @@ async function handleUserGuess(userGuess) {
     guessPhishyButton.disabled = true; 
     guessNotPhishyButton.disabled = true;
 
-    // NEW: Update progress counters
     totalEmailsSeen++;
     const userIsCorrect = (userGuess === 'Phishy' && currentEmailData.true_label === 'Spam') || 
                           (userGuess === 'Not Phishy' && currentEmailData.true_label === 'Not Spam');
     if (userIsCorrect) {
         userCorrectGuesses++;
     }
-
     const modelIsCorrect = currentEmailData.model_prediction === currentEmailData.true_label;
     if (modelIsCorrect) {
         modelCorrectGuesses++;
     }
-
-    // Update the progress circles and display text
     updateProgressCircles();
 
     if (userGuess === 'Phishy') {
@@ -152,6 +143,7 @@ async function handleUserGuess(userGuess) {
     modelPredictionDisplay.textContent = currentEmailData.model_prediction;
     modelPredictionDisplay.classList.remove('prediction-spam', 'prediction-not-spam');
     modelPredictionDisplay.classList.add(currentEmailData.model_prediction === 'Spam' ? 'prediction-spam' : 'prediction-not-spam');
+    modelProbabilityText.textContent = `Spam Probability: ${Math.round(currentEmailData.model_probability * 100)}%`;
 
     if (currentEmailData.true_label) {
         trueLabelDisplay.textContent = currentEmailData.true_label;
@@ -188,12 +180,12 @@ guessNotPhishyButton.addEventListener('click', () => handleUserGuess('Not Phishy
 
 nextEmailButton.addEventListener('click', async () => {
     await fetchLearningEmail();
-    if (challengeContentArea.closest('.card')) { 
-        challengeContentArea.closest('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (challengeEmailContainer.closest('.card')) { 
+        challengeEmailContainer.closest('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchLearningEmail();
-    updateProgressCircles(); // Also run on load to initialize with 0%
+    updateProgressCircles();
 });

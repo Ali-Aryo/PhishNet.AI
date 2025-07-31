@@ -36,7 +36,13 @@
             <h2 class="challenge-title">Is this message Phishy?</h2>
             
             <div id="challengeContentArea" class="challenge-email-container">
-                </div>
+                <p id="loadingMessage" class="loading-message">
+                    <div class="spinner"></div>
+                    Loading email...
+                </p>
+                <div id="challengeEmailContent" class="challenge-email-content hidden"></div>
+                <p id="learningErrorMessage" class="error-message"></p>
+            </div>
 
             <div class="user-guess-buttons hidden">
                 <button id="guessPhishy" class="sleek-button guess-button guess-phishy">Phishy</button>
@@ -48,7 +54,7 @@
             <div id="learningResultSection" class="learning-result-section hidden">
                 <div class="prediction-display">
                     <p>Your Guess: <span id="userGuessDisplay" class="result-label"></span></p>
-                    <p>Model Prediction: <span id="modelPredictionDisplay" class="result-label"></span></p>
+                    <p>Model Prediction: <span id="modelPredictionDisplay" class="result-label"></span> (<span id="modelProbabilityText"></span>)</p> 
                 </div>
                 <div class="correct-answer">
                     <p>Correct Answer: <span id="trueLabelDisplay" class="result-label"></span></p>
